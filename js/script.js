@@ -1,0 +1,282 @@
+$(function () {
+  // Simulate loading delay for 1 second
+  setTimeout(function () {
+    // Fade out the preloader
+    $("#preloader").fadeOut("500", function () {
+      // Show the main content
+      $(".main-container").fadeIn("500", function () {
+        AOS.init({
+          duration: 1000,
+        });
+      });
+    });
+  }, 1000); // Delay of 1 second
+});
+
+$(document).ready(function () {
+  const $hamburger = $(".hamburger");
+  const $asideMenu = $(".aside-container");
+  const $asideMenuLink = $(".aside-container a");
+
+  const $attendeeSlideOne = $(".who-participates-slide-1");
+  const $attendeeSlideTwo = $(".who-participates-slide-2");
+  const $attendeeSlideThree = $(".who-participates-slide-3");
+
+  const $highlightSlideOne = $(".highlight-slider-1");
+  const $highlightSlideTwo = $(".highlight-slider-2");
+  const $highlightSlideThree = $(".highlight-slider-3");
+
+  const $slides = $(
+    ".who-participates-slide-1, .who-participates-slide-2, .who-participates-slide-3",
+  );
+
+  const $testimonialSlide = $(".testimonial-slides");
+
+  // Show modal automatically on page load
+  $("#announcementModal").fadeIn();
+
+  // Hide modal and show main content when clicking close
+  $("#closeModal").click(function () {
+    $("#announcementModal").fadeOut();
+    // $("#mainContent").fadeIn();
+  });
+
+  // Hide popup when clicking outside the content
+  $(document).click(function (event) {
+    if (!$(event.target).closest(".modal-content, .get-ticket-btn").length) {
+      $("#announcementModal").fadeOut();
+    }
+  });
+
+  // Toggle Nav
+  const toggleNav = () => {
+    // Toggle hamburger and aside menu
+    $hamburger.on("click", function () {
+      $(this).toggleClass("open");
+      $asideMenu.toggleClass("open");
+    });
+
+    // Close the aside menu when a link is clicked
+    $asideMenuLink.on("click", function () {
+      $asideMenu.removeClass("open");
+      $hamburger.removeClass("open");
+    });
+
+    $(document).on("click", function (event) {
+      if (
+        !$asideMenu.is(event.target) &&
+        !$asideMenu.has(event.target).length &&
+        !$hamburger.is(event.target) &&
+        !$hamburger.has(event.target).length
+      ) {
+        $asideMenu.removeClass("open");
+        $hamburger.removeClass("open");
+      }
+    });
+  };
+
+  // Show announcement modal when page loads
+  // $(window).on("load", function () {
+  //   $("#announcement-modal").addClass("active");
+  // });
+
+  // Announcement Modal
+  // Close announcement modal when close button is clicked
+  $(".announcement-modal-close").click(function () {
+    $("#announcement-modal").removeClass("active");
+  });
+
+  // Close announcement modal when overlay is clicked
+  $(".announcement-modal-overlay").click(function () {
+    $("#announcement-modal").removeClass("active");
+  });
+
+  // Prevent modal content from closing when clicked
+  $(".announcement-modal-content").click(function (e) {
+    e.stopPropagation();
+  });
+
+  // Close announcement modal when Escape key is pressed
+  $(document).keydown(function (e) {
+    if (e.key === "Escape" && $("#announcement-modal").hasClass("active")) {
+      $("#announcement-modal").removeClass("active");
+    }
+  });
+
+  const attendeeComp = () => {
+    // Function to calculate slidesToShow based on window width
+    function getSlidesToShow() {
+      return Math.ceil($(window).width() / 250);
+    }
+
+    const slickSettings1 = {
+      infinite: true,
+      speed: 2000,
+      autoplay: true,
+      autoplaySpeed: 10,
+      slidesToShow: getSlidesToShow(),
+      slidesToScroll: 1,
+      lazyLoad: "ondemand",
+      arrows: false,
+      cssEase: "linear",
+      pauseOnHover: false,
+      pauseOnFocus: false,
+      draggable: false,
+    };
+
+    const slickSettings2 = $.extend({}, slickSettings1, {
+      speed: 3000,
+      rtl: true,
+    });
+
+    const slickSettings3 = $.extend({}, slickSettings1, {
+      speed: 6000,
+    });
+
+    $attendeeSlideOne.slick(slickSettings1);
+    $attendeeSlideTwo.slick(slickSettings2);
+    $attendeeSlideThree.slick(slickSettings3);
+
+    // Throttle function to optimize resize event handling
+    let resizeTimeout;
+    $(window).on("resize", function () {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(function () {
+        const newSlidesToShow = getSlidesToShow();
+        $slides.slick("slickSetOption", "slidesToShow", newSlidesToShow, true);
+      }, 200); // Delay to prevent excessive updates during resizing
+    });
+  };
+
+  const highlightComp = () => {
+    const highlightSettings1 = {
+      infinite: true,
+      speed: 4000,
+      autoplay: true,
+      autoplaySpeed: 10,
+      slidesToShow: 4,
+      slidesToScroll: 1,
+      lazyLoad: "ondemand",
+      arrows: false,
+      cssEase: "linear",
+
+      responsive: [
+        {
+          breakpoint: 991,
+          settings: {
+            slidesToShow: 3,
+          },
+        },
+        {
+          breakpoint: 767,
+          settings: {
+            slidesToShow: 2,
+          },
+        },
+        {
+          breakpoint: 567,
+          settings: {
+            slidesToShow: 1,
+          },
+        },
+      ],
+    };
+
+    const highlightSettings2 = $.extend({}, highlightSettings1, {
+      speed: 3000,
+      rtl: true,
+    });
+
+    const highlightSettings3 = $.extend({}, highlightSettings1, {
+      speed: 6000,
+    });
+
+    $highlightSlideOne.slick(highlightSettings1);
+    $highlightSlideTwo.slick(highlightSettings2);
+    $highlightSlideThree.slick(highlightSettings3);
+  };
+
+  const populateHighlightSlides = () => {
+    const TOTAL_HIGHLIGHT_IMAGES = 120;
+
+    const shuffle = (array) => {
+      let currentIndex = array.length;
+      let randomIndex;
+
+      while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [
+          array[randomIndex],
+          array[currentIndex],
+        ];
+      }
+
+      return array;
+    };
+
+    const highlightImages = Array.from(
+      { length: TOTAL_HIGHLIGHT_IMAGES },
+      (_, index) => `/assets/highlights/${index + 1}.jpg`,
+    );
+
+    const shuffledHighlights = shuffle(highlightImages);
+    const slider1 = [];
+    const slider2 = [];
+    const slider3 = [];
+
+    shuffledHighlights.forEach((imagePath, index) => {
+      if (index % 3 === 0) slider1.push(imagePath);
+      if (index % 3 === 1) slider2.push(imagePath);
+      if (index % 3 === 2) slider3.push(imagePath);
+    });
+
+    const imageTag = (src) => `<img src="${src}" alt="" loading="lazy" />`;
+
+    $highlightSlideOne.html(slider1.map(imageTag).join(""));
+    $highlightSlideTwo.html(slider2.map(imageTag).join(""));
+    $highlightSlideThree.html(slider3.map(imageTag).join(""));
+  };
+
+  const testimonialComp = () => {
+    const testimonialSettings = {
+      infinite: true,
+      speed: 2000,
+      autoplay: true,
+      autoplaySpeed: 4000,
+      lazyLoad: "ondemand",
+      arrows: false,
+      cssEase: "linear",
+      dots: true,
+      fade: true,
+    };
+
+    $testimonialSlide.slick(testimonialSettings);
+  };
+
+  $(window).scroll(function () {
+    $(".odometer").each(function () {
+      let parent_section_postion = $(this)
+        .closest(".count-container")
+        .position();
+      let parent_section_top = parent_section_postion.top;
+      if (
+        $(window).scrollTop() >
+        parent_section_top - ($(window).height() - 200)
+      ) {
+        if ($(this).data("status") == "yes") {
+          $(this).html($(this).data("count"));
+          $(this).data("status", "no");
+        }
+      }
+    });
+
+    AOS.refresh();
+  });
+
+  toggleNav();
+  attendeeComp();
+  populateHighlightSlides();
+  highlightComp();
+  testimonialComp();
+});
